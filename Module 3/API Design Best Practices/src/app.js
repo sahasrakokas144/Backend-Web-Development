@@ -9,6 +9,28 @@ function createApp() {
 
   app.use('/', postRoutes);
   app.get('/explode', controller.explode);
+  app.use((err, req, res, next) => {
+    console.error('Internal server error:', err.message);
+
+    res.status(500).json({
+      error: {
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'An unexpected error occurred.'
+      }
+    });
+  });
+
+  app.use((req, res) => {
+    res.status(404).json({
+      error: {
+        code: 'NOT_FOUND',
+        message: 'The requested resource was not found.'
+      }
+    });
+  });
+
+  return app;
+}
 
   // TODO:
   // - make public contract resource-oriented
@@ -19,8 +41,7 @@ function createApp() {
   // - stop exposing old verb routes as public contract
   // - expose safe internal failure route for testing/demo
 
-  return app;
-}
+  
 
 if (require.main === module) {
   const app = createApp();
